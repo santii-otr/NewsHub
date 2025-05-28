@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsHub - Portal de Noticias</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Navigation */
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a:hover, nav a.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Main Content */
+        main {
+            margin: 2rem 0;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Section */
+        .hero {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(31, 38, 135, 0.5);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-category {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .news-excerpt {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .read-more {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Categories Filter */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: white;
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* About Section */
+        .about-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        .about-content h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            cursor: pointer;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            nav.active {
+                display: block;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-filter {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">📰 NewsHub</div>
+                <div class="mobile-menu" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-page="home">Inicio</a></li>
+                        <li><a href="#" class="nav-link" data-page="politics">Política</a></li>
+                        <li><a href="#" class="nav-link" data-page="sports">Deportes</a></li>
+                        <li><a href="#" class="nav-link" data-page="tech">Tecnología</a></li>
+                        <li><a href="#" class="nav-link" data-page="about">Acerca</a></li>
+                        <li><a href="#" class="nav-link" data-page="contact">Contacto</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <h1>Bienvenido a NewsHub</h1>
+                <p>Tu fuente confiable de noticias actualizadas las 24 horas</p>
+            </div>
+
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all">Todas</button>
+                <button class="filter-btn" data-category="política">Política</button>
+                <button class="filter-btn" data-category="deportes">Deportes</button>
+                <button class="filter-btn" data-category="tecnología">Tecnología</button>
+                <button class="filter-btn" data-category="economía">Economía</button>
+            </div>
+
+            <div class="news-grid" id="newsGrid">
+                <!-- Las noticias se cargarán aquí -->
+            </div>
+        </div>
+
+        <!-- Politics Page -->
+        <div id="politics" class="page">
+            <div class="hero">
+                <h1>Noticias Políticas</h1>
+                <p>Mantente informado sobre los acontecimientos políticos más relevantes</p>
+            </div>
+            <div class="news-grid" id="politicsGrid">
+                <!-- Noticias políticas -->
+            </div>
+        </div>
+
+        <!-- Sports Page -->
+        <div id="sports" class="page">
+            <div class="hero">
+                <h1>Deportes</h1>
+                <p>Los últimos resultados y noticias del mundo deportivo</p>
+            </div>
+            <div class="news-grid" id="sportsGrid">
+                <!-- Noticias deportivas -->
+            </div>
+        </div>
+
+        <!-- Tech Page -->
+        <div id="tech" class="page">
+            <div class="hero">
+                <h1>Tecnología</h1>
+                <p>Innovaciones y avances tecnológicos que están cambiando el mundo</p>
+            </div>
+            <div class="news-grid" id="techGrid">
+                <!-- Noticias tecnológicas -->
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="about-content">
+                <h2>Acerca de NewsHub</h2>
+                <p>NewsHub es un portal de noticias moderno y confiable que se dedica a mantener informada a nuestra comunidad sobre los acontecimientos más importantes a nivel local e internacional.</p>
+                <p>Nuestro equipo de periodistas profesionales trabaja las 24 horas del día para ofrecerte información precisa, verificada y actualizada en tiempo real.</p>
+                <p>Creemos en el periodismo de calidad y en el derecho de las personas a estar bien informadas. Por eso, nos comprometemos a brindar contenido objetivo, imparcial y de alta calidad.</p>
+                <h3>Nuestra Misión</h3>
+                <p>Ser la fuente de noticias más confiable y accesible, proporcionando información que empodere a nuestros lectores para tomar decisiones informadas en su vida diaria.</p>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="contact" class="page">
+            <div class="contact-form">
+                <h2>Contáctanos</h2>
+                <p>¿Tienes una noticia que compartir o alguna pregunta? No dudes en contactarnos.</p>
+                <form onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Nombre:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Asunto:</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Mensaje:</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Enviar Mensaje</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 NewsHub. Todos los derechos reservados. | Diseñado con ❤️ para mantenerte informado</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos de ejemplo para las noticias
+        const newsData = [
+            {
+                id: 1,
+                title: "Nueva Reforma Educativa Aprobada por el Congreso",
+                excerpt: "El Congreso aprobó una reforma educativa que modernizará el sistema educativo nacional con nuevas tecnologías y metodologías de enseñanza.",
+                category: "política",
+                icon: "🏛️",
+                date: "2025-05-27",
+                author: "María González"
+            },
+            {
+                id: 2,
+                title: "Equipo Nacional Gana el Campeonato Internacional",
+                excerpt: "La selección nacional logró una victoria histórica en el campeonato internacional, derrotando al favorito por 3-1 en la final.",
+                category: "deportes",
+                icon: "⚽",
+                date: "2025-05-26",
+                author: "Carlos Rodríguez"
+            },
+            {
+                id: 3,
+                title: "Breakthrough en Inteligencia Artificial Revoluciona la Medicina",
+                excerpt: "Científicos desarrollan una IA capaz de diagnosticar enfermedades raras con 99% de precisión, prometiendo revolucionar la medicina personalizada.",
+                category: "tecnología",
+                icon: "🤖",
+                date: "2025-05-25",
+                author: "Dr. Ana Martínez"
+            },
+            {
+                id: 4,
+                title: "Mercados Globales Muestran Crecimiento Sostenido",
+                excerpt: "Los índices bursátiles principales registran su mejor semana del año, impulsados por resultados corporativos positivos y optimismo económico.",
+                category: "economía",
+                icon: "📈",
+                date: "2025-05-24",
+                author: "Roberto Fernández"
+            },
+            {
+                id: 5,
+                title: "Cumbre Internacional Sobre Cambio Climático",
+                excerpt: "Líderes mundiales se reúnen para discutir nuevas estrategias contra el cambio climático y establecer metas más ambiciosas para 2030.",
+                category: "política",
+                icon: "🌍",
+                date: "2025-05-23",
+                author: "Elena Vargas"
+            },
+            {
+                id: 6,
+                title: "Récord Mundial en Natación Quebrado en Competencia Local",
+                excerpt: "El nadador local Juan Pérez establece un nuevo récord mundial en los 200 metros libres durante la competencia nacional de natación.",
+                category: "deportes",
+                icon: "🏊",
+                date: "2025-05-22",
+                author: "Luis Torres"
+            },
+            {
+                id: 7,
+                title: "Lanzamiento del Primer Smartphone con Batería de Grafeno",
+                excerpt: "Una empresa tecnológica presenta el primer teléfono inteligente comercial con batería de grafeno que promete 7 días de autonomía.",
+                category: "tecnología",
+                icon: "📱",
+                date: "2025-05-21",
+                author: "Patricia Silva"
+            },
+            {
+                id: 8,
+                title: "Inflación Baja al Nivel Más Bajo en Cinco Años",
+                excerpt: "Los datos oficiales muestran que la inflación cayó al 2.1%, el nivel más bajo desde 2020, señalando una recuperación económica sólida.",
+                category: "economía",
+                icon: "💰",
+                date: "2025-05-20",
+                author: "Miguel Herrera"
+            }
+        ];
+
+        // Función para crear una tarjeta de noticia
+        function createNewsCard(news) {
+            return `
+                <article class="news-card" data-category="${news.category}">
+                    <div class="news-image">
+                        <span>${news.icon}</span>
+                    </div>
+                    <div class="news-content">
+                        <span class="news-category">${news.category.toUpperCase()}</span>
+                        <h3 class="news-title">${news.title}</h3>
+                        <p class="news-excerpt">${news.excerpt}</p>
+                        <div class="news-meta">
+                            <span><i class="fas fa-user"></i> ${news.author}</span>
+                            <span><i class="fas fa-calendar"></i> ${news.date}</span>
+                        </div>
+                        <button class="read-more" onclick="readMore(${news.id})">Leer más</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Función para cargar noticias en una grilla específica
+        function loadNews(gridId, category = 'all') {
+            const grid = document.getElementById(gridId);
+            let filteredNews = newsData;
+            
+            if (category !== 'all') {
+                filteredNews = newsData.filter(news => news.category === category);
+            }
+            
+            grid.innerHTML = filteredNews.map(createNewsCard).join('');
+        }
+
+        // Función para cargar noticias por categoría específica
+        function loadNewsByCategory(gridId, category) {
+            const grid = document.getElementById(gridId);
+            const filteredNews = newsData.filter(news => news.category === category);
+            grid.innerHTML = filteredNews.map(createNewsCard).join('');
+        }
+
+        // Navegación entre páginas
+        function showPage(pageId) {
+            // Ocultar todas las páginas
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Mostrar la página seleccionada
+            document.getElementById(pageId).classList.add('active');
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+        }
+
+        // Event listeners para navegación
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                showPage(pageId);
+                
+                // Cargar noticias específicas por página
+                if (pageId === 'politics') {
+                    loadNewsByCategory('politicsGrid', 'política');
+                } else if (pageId === 'sports') {
+                    loadNewsByCategory('sportsGrid', 'deportes');
+                } else if (pageId === 'tech') {
+                    loadNewsByCategory('techGrid', 'tecnología');
+                }
+            });
+        });
+
+        // Filtros de categoría
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Actualizar botón activo
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filtrar noticias
+                const category = btn.getAttribute('data-category');
+                loadNews('newsGrid', category);
+            });
+        });
+
+        // Función para leer más (simulación)
+        function readMore(newsId) {
+            const news = newsData.find(n => n.id === newsId);
+            alert(`Leyendo: "${news.title}"\n\n${news.excerpt}\n\n(En una implementación real, esto abriría la noticia completa)`);
+        }
+
+        // Función para el menú móvil
+        function toggleMobileMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        // Función para manejar el formulario de contacto
+        function handleSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            alert(`¡Gracias por tu mensaje, ${data.name}!\n\nTu mensaje ha sido enviado correctamente. Te responderemos pronto.`);
+            event.target.reset();
+        }
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar noticias iniciales
+            loadNews('newsGrid');
+            loadNewsByCategory('politicsGrid', 'política');
+            loadNewsByCategory('sportsGrid', 'deportes');
+            loadNewsByCategory('techGrid', 'tecnología');
+        });
+
+        // Animaciones suaves al hacer scroll
+        window.addEventListener('scroll', () => {
+            const cards = document.querySelectorAll('.news-card');
+            cards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                const cardVisible = cardTop < window.innerHeight - 100;
+                
+                if (cardVisible) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
